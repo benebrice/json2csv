@@ -14,12 +14,14 @@ describe 'Json2csv instance methods' do
   end
 
   it 'find branches' do
-    @ins.send(:find_branches, @ins.headers)
+    @ins.load_data
+    @ins.send(:find_branches, @ins.data.first)
     expect(@ins.branches).not_to be_empty
   end
 
   it 'every branch found is differente from one another' do
-    @ins.send(:find_branches, @ins.headers)
+    @ins.load_data
+    @ins.send(:find_branches, @ins.data.first)
     expect(@ins.branches.count).to eq(@ins.branches.uniq.count)
   end
 end

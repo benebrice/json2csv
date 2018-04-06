@@ -1,5 +1,6 @@
 require 'json'
 
+# Class to convert a JSON file to a CSV file
 class Json2csv
   attr_reader :data_path, :csv_path, :branches, :data
   def initialize
@@ -16,28 +17,17 @@ class Json2csv
   end
 
   def generate_csv
-
     # Branches extraction
     find_branches(@data.first)
 
+    puts "You've done the work once..(#{path})" if File.exist?(csv_path)
 
-    puts "You've done the work once.. Look here : #{path}" if File.exist?(csv_path)
-    
     # File management
     File.open(csv_path, 'w') do |file|
-      # Write headers
-      file.write(@branches.join(',') + "\n")
-
       # CSV generation
-      data.each do |json_user|
-        res = @branches.map do |br|
-          value = self.class.extract_value(json_user, br.split('.'))
-          self.class.serialize_to_csv(value)
-        end
-        file.write(res.join(',') + "\n")
-      end
+      lines = data.map { |json_user| extract_data(json_user).join(',') }
+      write_on_file(file, lines)
     end
-    
   end
 
   private
@@ -52,6 +42,19 @@ class Json2csv
       is_leaf = find_branches(value, branch: branch.push(key))
       branch.pop if is_leaf
     end
+  end
+
+  def extract_data(json_user)
+    @branches.map do |br|
+      value = self.class.extract_value(json_user, br.split('.'))
+      self.class.serialize_to_csv(value)
+    end
+  end
+
+  def write_on_file(file, lines, with_headers = true)
+    # Write headers
+    file.write(@branches.join(',') + "\n") if with_headers
+    lines.each { |line| file.write(line + "\n") }
   end
 
   class << self
