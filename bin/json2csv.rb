@@ -34,14 +34,18 @@ class Json2csv
 
   def find_branches(data, branch: [])
     unless data.is_a?(Hash)
-      @branches.push((branch + [data]).join('.'))
+      store_branch(branch, data)
       return true
     end
     data.each do |key, value|
-      @branches.push((branch + [key]).join('.')) && next unless value.is_a?(Hash)
+      store_branch(branch, key) && next unless value.is_a?(Hash)
       is_leaf = find_branches(value, branch: branch.push(key))
       branch.pop if is_leaf
     end
+  end
+
+  def store_branch(branch, key, joiner = '.')
+    @branches.push((branch + [key]).join(joiner))
   end
 
   def extract_data(json_user)
